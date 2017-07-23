@@ -202,8 +202,8 @@ long globalSleepTimeFromNetpieInMemory = 3;
 #include <MemoryFree.h>
 #endif
 
-#define APN "internet"
-//#define APN "bmta.fleet"
+//#define APN "internet"
+#define APN "bmta.fleet"
 #define USER ""
 #define PASS ""
 
@@ -320,7 +320,6 @@ String globalData4GPS;
 String globalData5;
 
 void builDataStringForTCPSocket() {
-  float mq4_co = 0.0, mq9_ch4 = 0.0;
   String data_s;
   globalData0Version = String (BINID ":2,2,2,2,2");
   //  {
@@ -354,13 +353,9 @@ void builDataStringForTCPSocket() {
   {
     // DATA4 Preparation
     globalData4GPS = String (BINID ":");
-    data_s = gps_lat + "," + gps_lon + "," + gps_alt;
+    String data_s = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
     globalData4GPS += data_s;
     Serial.println(globalData4GPS);
-
-    // DATA5 Preparation
-    globalData5 = String(BINID ":") + _rssi + "," + _batt;
-    Serial.println(globalData5);
   }
 }
 
@@ -516,35 +511,60 @@ bool writeDataStringToTCPSocket() {
   delay(1000);
   Serial.println(str);
 
-  Serial.println(F("StartSend Node 2 ..."));
-  array_to_string(Node2.buff, Node2.len, str);
+  delay(1000);
+  Serial.println(F("StartSend Node 1 ..."));
+  array_to_string(Node1.buff, Node1.len, str);
   tcp.StartSend();
+    tcp.println("KKao test");
   tcp.println(globalData0Version);
-  tcp.println(str);
+
+  Serial.print("\n");
+  Serial.print("\n");
+
+  for(int u = 0; u < Node1.len; u++){
+    tcp.write((uint8_t)Node1.buff[u]);
+    Serial.write((uint8_t)Node1.buff[u]);
+  }
+  Serial.print("\n");
+  Serial.print("\n");
+
   tcp.print(globalData4GPS);
   tcp.StopSend();
   delay(1000);
   Serial.println(str);
 
-  Serial.println(F("StartSend Node 3 ..."));
-  array_to_string(Node3.buff, Node3.len, str);
-  tcp.StartSend();
-  tcp.println(globalData0Version);
-  tcp.println(str);
-  tcp.print(globalData4GPS);
-  tcp.StopSend();
-  delay(1000);
-  Serial.println(str);
 
-  Serial.println(F("StartSend Node 4 ..."));
-  array_to_string(Node4.buff, Node4.len, str);
-  tcp.StartSend();
-  tcp.println(globalData0Version);
-  tcp.println(str);
-  tcp.print(globalData4GPS);
-  tcp.StopSend();
-  delay(1000);
-  Serial.println(str);
+
+
+  // Serial.println(F("StartSend Node 2 ..."));
+  // array_to_string(Node2.buff, Node2.len, str);
+  // tcp.StartSend();
+  // tcp.println(globalData0Version);
+  // tcp.println(str);
+  // tcp.print(globalData4GPS);
+  // tcp.StopSend();
+  // delay(1000);
+  // Serial.println(str);
+  //
+  // Serial.println(F("StartSend Node 3 ..."));
+  // array_to_string(Node3.buff, Node3.len, str);
+  // tcp.StartSend();
+  // tcp.println(globalData0Version);
+  // tcp.println(str);
+  // tcp.print(globalData4GPS);
+  // tcp.StopSend();
+  // delay(1000);
+  // Serial.println(str);
+  //
+  // Serial.println(F("StartSend Node 4 ..."));
+  // array_to_string(Node4.buff, Node4.len, str);
+  // tcp.StartSend();
+  // tcp.println(globalData0Version);
+  // tcp.println(str);
+  // tcp.print(globalData4GPS);
+  // tcp.StopSend();
+  // delay(1000);
+  // Serial.println(str);
 
   Serial.print(millis());
   Serial.println(" writeDataStringToTCPSocket");
@@ -660,8 +680,10 @@ long time_now, time_prev1, time_prev2 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-  
-  if (time_now > 35000) {
+
+if (time_now > 5000)
+  //if (time_now > 35000)
+  {
 
     if (time_now < time_prev1) {
       asm volatile ("  jmp 0");
@@ -669,7 +691,7 @@ void loop() {
 
     if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
       time_prev1 = time_now;
-      GET_Position();
+      //GET_Position();
       SentNodeData();
       Peroid = globalSleepTimeFromNetpieInMemory;
     }
@@ -682,20 +704,6 @@ void loop() {
 }
 
 void SentNodeData (void) {
-
-  // GPIO CONFIGURATION
-  //   if (digitalRead(MODE_PIN) == HIGH) {
-  //     localSleepTime = 60;
-  // #if DEBUG_SERIAL
-  //     Serial.println("HIGH");
-  // #endif
-  //   } else {
-  //     // localSleepTime 3 minute 3 * 60 = 180
-  //     localSleepTime = 180 + 1000;
-  // #if DEBUG_SERIAL
-  //     Serial.println("LOW");
-  // #endif
-  //   }
 
   /////////////////////////////3G//////////////////////////////////
 #if DEBUG_SERIAL
@@ -741,18 +749,13 @@ void SentNodeData (void) {
   Serial.print("SLEEP TIME [NETPIE] = ");
   Serial.println(globalSleepTimeFromNetpieInMemory);
 
-
-  //////////////////////////////GPS//////////////////////////////
-  //startGPSService();
-
-  //////////////////////////////TCP//////////////////////////////
   Serial.println(millis() / 1000);
   http.begin(1);
 
   builDataStringForTCPSocket();
 
 
-  // readAllSensors();
+  readAllSensors();
   sendDataOverTCPSocket();
 
   gsm.PowerOff();
@@ -769,6 +772,7 @@ void GET_Position (void) {
   while (gsm.WaitReady()) {}
   //////////////////////////////GPS//////////////////////////////
   startGPSService();
+  //////////////////////////////GPS//////////////////////////////
   gsm.PowerOff();
 
 }
