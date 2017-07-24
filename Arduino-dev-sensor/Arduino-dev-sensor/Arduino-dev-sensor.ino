@@ -500,38 +500,45 @@ bool writeDataStringToTCPSocket() {
 
   char str[100] = "";
 
-  delay(1000);
-  Serial.println(F("StartSend Node 1 ..."));
-  array_to_string(Node1.buff, Node1.len, str);
-  tcp.StartSend();
-  tcp.println(globalData0Version);
-  tcp.println(str);
-  tcp.print(globalData4GPS);
-  tcp.StopSend();
-  delay(1000);
-  Serial.println(str);
+  const int SensorMsg_size = 25;
+  char SensorMsg[SensorMsg_size] = "";
+  addSensorMsg(SensorMsg);
+  String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
 
-  delay(1000);
-  Serial.println(F("StartSend Node 1 ..."));
-  array_to_string(Node1.buff, Node1.len, str);
-  tcp.StartSend();
-    tcp.println("KKao test");
-  tcp.println(globalData0Version);
 
   Serial.print("\n");
   Serial.print("\n");
 
+
+  delay(1000);
+  Serial.println(F("StartSend Node 1 ..."));
+  array_to_string(Node1.buff, Node1.len, str);
+  tcp.StartSend();
   for(int u = 0; u < Node1.len; u++){
     tcp.write((uint8_t)Node1.buff[u]);
-    Serial.write((uint8_t)Node1.buff[u]);
+
+    Serial.print(Node1.buff[u], HEX);
   }
-  Serial.print("\n");
+
   Serial.print("\n");
 
-  tcp.print(globalData4GPS);
+  for(int u = 0; u < SensorMsg_size; u++){
+    tcp.write((uint8_t)SensorMsg[u]);
+
+    Serial.print((uint8_t)SensorMsg[u], HEX);
+  }
+  tcp.print(GpsMsg);
   tcp.StopSend();
   delay(1000);
   Serial.println(str);
+
+
+  Serial.print("\n");
+  Serial.print("\n");
+
+
+
+
 
 
 
