@@ -34,12 +34,13 @@ int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
 
     message[0] = 0xfa; //<---- header
     message[1] = 0xfb; //<---- header
+
     message[2] = 0xff; //<------ reserved
     message[3] = 0xff; //<------ reserved
     message[4] = 0xff; //<------ reserved
     message[5] = 0xff; //<------ reserved
 
-    memcpy(message[6], mac, 6);//<----------- mac1
+    memcpy(&message[6], mac, 6);//<----------- mac1
     // message[6] = 0x5c; //<----------- mac1
     // message[7] = 0xcf;
     // message[8] = 0x7f;
@@ -87,6 +88,5 @@ int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
     message[21 + 4*4 + strlen(gps)+2] = 0x0d;
     message[21 + 4*4 + strlen(gps)+3] = 0x0a;
 
-    return 21 + 4*4 + strlen(gps)+3;
-
+    return 21 + 4*4 + strlen(gps)+3 +1;
 }

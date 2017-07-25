@@ -253,7 +253,7 @@ String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
   Serial.println(F("Send HTTP GET"));
-  http.url("http://api.netpie.io/topic/SmartTrash/time?retain&auth=YGO1C5bATVNctTE:wN7khNDXgadngRN5WxMGMc7z0");
+  http.url("http://api.netpie.io/topic/SmartTrash/time?auth=YGO1C5bATVNctTE:wN7khNDXgadngRN5WxMGMc7z0");
   Serial.println(http.get());
   // Serial.println(F("Clear data in RAM"));
   file.Delete(RAM, "*");
@@ -298,23 +298,6 @@ void read_file(String pattern, String file_name)
   file.ReadFile(pattern, file_name);
 }
 
-String globalData0Version;
-String globalData1;
-String globalData2;
-String globalData3;
-String globalData4GPS;
-String globalData5;
-
-// void builDataStringForTCPSocket() {
-//   globalData0Version = String (BINID ":2,2,2,2,2");
-//   {
-//     globalData4GPS = String (BINID ":");
-//     String data_s = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
-//     globalData4GPS += data_s;
-//     Serial.println(globalData4GPS);
-//   }
-// }
-
 bool open_tcp() {
   Serial.println("===========");
   Serial.println("open_tcp");
@@ -344,7 +327,7 @@ bool open_tcp() {
   return ret;
 }
 
-bool writeDataStringToTCPSocket() {
+void debugSlave() {
   Serial.print(millis());
   Serial.println(" writeDataStringToTCPSocket");
   //
@@ -391,49 +374,59 @@ bool writeDataStringToTCPSocket() {
   Serial.print("\n");
   Serial.print("\n");
 
-  char str[100] = "";
+}
 
-  const int SensorMsg_size = 100;
-  char SensorMsg[SensorMsg_size] = "";
 
-  String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
-
-  int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8], (uint8_t *)&GpsMsg);
-
-  Serial.print("\n");
-  Serial.print("\n");
-
-  delay(1000);
+void writeForwaredSensorFromSlave() {
+  debugSlave();
   Serial.println(F("StartSend Node 1 ..."));
-
+  Serial.println("Caling StartSend");
   tcp.StartSend();
+  delay(1000);
   Serial.println("----- NODE FORWARD HEX -----");
   for(int u = 0; u < Node1.len; u++){
     tcp.write((uint8_t)Node1.buff[u]);
     Serial.print(Node1.buff[u], HEX);
+    delay(1);
   }
+  Serial.println("Calling StopSend..");
   tcp.StopSend();
   delay(1000);
+  Serial.println("finish!");
+}
 
-  tcp.StartSend();
-  Serial.println();
-  Serial.println("----- Sensor Value HEX -----");
-  for(int u = 0; u < sensor_len; u++){
-    tcp.write((uint8_t)SensorMsg[u]);
-    Serial.print((uint8_t)SensorMsg[u], HEX);
-  }
+void writeArduinoSensor() {
+  // ARDUINO's SENSOR
+  // {
+  //   Serial.println("Being Sent");
+    #define SensorMsg_size 100
+    char SensorMsg[SensorMsg_size] = "";
+    String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
+    int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8],
+        (uint8_t *)&GpsMsg);
 
-  // Serial.println();
-  // Serial.println("----- Sensor GPS -----");
-  // Serial.println((GpsMsg));
-  // tcp.print(GpsMsg);
-  tcp.StopSend();
+    Serial.print("\n");
+    Serial.print("\n");
+
+    delay(1000);
+    tcp.StartSend();
+  //   // Serial.println();
+    Serial.println("----- Sensor Value HEX -----");
+    Serial.println(sensor_len);
+    for(int u = 0; u < sensor_len; u++){
+      tcp.write((uint8_t)SensorMsg[u]);
+      Serial.print((uint8_t)SensorMsg[u], HEX);
+    }
+    Serial.println();
+    tcp.StopSend();
+    delay(1000);
+  // }
+}
+
+bool writeDataStringToTCPSocket() {
+  Serial.println("Write From Slave");
+  writeForwaredSensorFromSlave();
   delay(1000);
-  Serial.println(str);
-  Serial.print("\n");
-  Serial.print("\n");
-  Serial.print(millis());
-  Serial.println(" writeDataStringToTCPSocket");
 }
 
 void array_to_string(byte array[], unsigned int len, char buffer[])

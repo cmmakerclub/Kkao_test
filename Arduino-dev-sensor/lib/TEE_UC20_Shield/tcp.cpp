@@ -9,7 +9,7 @@ TCP::TCP()
 }
 bool TCP::Open(unsigned char contexid,unsigned char connectid,String service_type,String ip_url,String remote_port,String local_port,unsigned char access_mode)
 {
-	const long interval = 1000;
+	const long interval = 10*1000;
 	// AT+QIOPEN=1,0,"TCP","www.settakan.com",80,0,0
 	bool ret = false;
 	gsm.print("AT+QIOPEN=");
@@ -84,7 +84,7 @@ bool TCP::Open(String ip_url,String port)
 }
 bool TCP::StartSend(unsigned char contexid)
 {
-	const long interval = 3000;
+	const long interval = 10*1000;
 	gsm.print("AT+QISEND=");
 	gsm.println(String(contexid));
 
@@ -110,7 +110,7 @@ bool TCP::StartSend(unsigned char contexid)
 }
 bool TCP::StartSend(unsigned char contexid,int len)
 {
-	const long interval = 3000;
+	const long interval = 10*1000;
 	unsigned char flag_retry=0;
 	gsm.print(F("AT+QISEND="));
 	gsm.print(String(contexid));
@@ -186,7 +186,7 @@ bool TCP::StopSend()
 {
 
 	gsm.write(0x1A);
-	const long interval = 3000;
+	const long interval = 10*1000;
 	unsigned long previousMillis = millis();
 	unsigned char cnt=0;
 	while(!gsm.available())
