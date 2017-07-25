@@ -136,7 +136,6 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
 
   } else if (CheckMac(tmp, Node3.mac)) {
     Node3.nid = 3;
-    memset(Node2.buff, 0, sizeof(Node2.buff));
     memset(Node3.buff, 0, sizeof(Node3.buff));
     memcpy(&Node3.buff, data, len);
     Node3.len = len;
