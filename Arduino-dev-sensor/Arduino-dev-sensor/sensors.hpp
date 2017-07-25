@@ -57,9 +57,7 @@ void readAllSensors() {
 }
 
 void addSensorMsg(uint8_t *message) {
-
   const uint8_t MESSAGE_SIZE = 25;
-
     uint32_t field1 = _tempBME*100;
     uint32_t field2 = _humidBME*100;
     uint32_t field3 = _pressBME;

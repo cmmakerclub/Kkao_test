@@ -1,3 +1,5 @@
+#define SERIAL_RX_BUFFER_SIZE 256
+
 #include <Arduino.h>
 #include <SPI.h>
 #include "TEE_UC20.h"
@@ -24,7 +26,6 @@ struct EEPROMStructure {
 };
 
 HTTP http;
-//Sleep sleepCtrl;
 float eepromFloatInitializedByte = 0.000f;
 EEPROMStructure globalCachedEEPROM;
 int eeAddress = 0;
@@ -84,7 +85,7 @@ uint8_t MassageAnalysis() {
           }
           if (sum == tmp[i - j - 2]) {
             memcpy(&mac, &tmp[j + 8], 6);
-            MassageSave(mac, &tmp[j], i - j + 1);
+            MassageSave(mac, &tmp[j], i - j);
             return 1;
           } else {
             return 0;
@@ -108,8 +109,6 @@ uint8_t CheckMac(uint8_t* mac1, uint8_t* mac2) {
 
 void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
   static int index;
-
-
   if (CheckMac(tmp, Node1.mac)) {
     memset(Node1.buff, 0, sizeof(Node1.buff));
     memcpy(&Node1.buff, data, len);
@@ -278,24 +277,13 @@ long getSleepTimeFromNetpie() {
     return;
   }
   else {
-    // Serial.println("parsed OK.");
     JsonObject& netpieJsonObject = root[0];
-    // Serial.print("TIME PAYLOAD: ");
     const char* payload = netpieJsonObject["payload"];
     const char* topic = netpieJsonObject["topic"];
     const char* lastUpdated = netpieJsonObject["lastUpdated"];
     long payloadInt = String(payload).toInt();
-    // Serial.print("payload: ");
-    // Serial.println(payload);
-    //
     Serial.print("payloadInt: ");
     Serial.println(payloadInt);
-    //
-    // Serial.print("topic: ");
-    // Serial.println(topic);
-    //
-    // Serial.print("lastUpdated: ");
-    // Serial.println(lastUpdated);
     return payloadInt;
   }
 };
@@ -319,45 +307,15 @@ String globalData3;
 String globalData4GPS;
 String globalData5;
 
-void builDataStringForTCPSocket() {
-  String data_s;
-  globalData0Version = String (BINID ":2,2,2,2,2");
-  //  {
-  //    globalData1 = String (BINID ":");
-  //    data_s = String(_volume) + "," + String(_lidStatus) + "," + String(_temp) + ","
-  //             + String(_humid) + "," + String(_flameStatus);
-  //    globalData1 += data_s;
-  //#if DEBUG_SERIAL
-  //    Serial.println(globalData1);
-  //#endif
-  //    // DATA2 Preparation
-  //    globalData2 = String (BINID ":");
-  //    String _battery_percent = "0";
-  //    data_s = String(_pitch) + "," + String(_roll) + "," + String(_press) + "," + String(_battery_percent);
-  //    globalData2 += data_s;
-  //#if DEBUG_SERIAL
-  //    Serial.println(globalData2);
-  //#endif
-  //  }
-  //  { // DATA3 Preparation
-  //    globalData3 = String (BINID ":");
-  //    data_s = String(_soundStatus) + "," + String(mq4_co) + "," +
-  //             String(mq9_ch4) + "," + String(_light) + "," + String(globalSleepTimeFromNetpieInMemory * 60) + "," + String(millis() / 1000.00) + "," +
-  //             String(_methane) + "," +
-  //             String(_carbon);
-  //    globalData3 += data_s;
-  //#if DEBUG_SERIAL
-  //    Serial.println(globalData3);
-  //#endif
-  //  }
-  {
-    // DATA4 Preparation
-    globalData4GPS = String (BINID ":");
-    String data_s = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
-    globalData4GPS += data_s;
-    Serial.println(globalData4GPS);
-  }
-}
+// void builDataStringForTCPSocket() {
+//   globalData0Version = String (BINID ":2,2,2,2,2");
+//   {
+//     globalData4GPS = String (BINID ":");
+//     String data_s = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
+//     globalData4GPS += data_s;
+//     Serial.println(globalData4GPS);
+//   }
+// }
 
 bool open_tcp() {
   Serial.println("===========");
@@ -391,22 +349,6 @@ bool open_tcp() {
 bool writeDataStringToTCPSocket() {
   Serial.print(millis());
   Serial.println(" writeDataStringToTCPSocket");
-
-  /*
-    data0,version
-    91:2,2,2,2,2
-    data1:dist,lid,temp,humid,flame
-    91:61.00,0,27.56,52.87,0
-    data2:pitch,roll,pressure,batt
-    91:0.00,0.00,969,621.00
-    data3:sound,mq4,mq9,lux,sleep,millis(),ch4,co
-    91:0.00,0.00,0.00,25,10,60.50,0,0
-    data4:lat,lng,alt
-    91:18.7828670N,098.9788563E,268
-  */
-
-
-
   // tcp.println(globalData0Version);
   // tcp.println(globalData1);
   // tcp.println(globalData2);
@@ -444,8 +386,6 @@ bool writeDataStringToTCPSocket() {
 
   // char str[32] = "";
   // array_to_string(dataInfo, 21, str);
-
-
 
   // String dataInfoSent = "" ; //= "0xfa, 0xfb, 0xff, 0xff, 0xff, 0xff,0x5c, 0xcf, 0x7f, 0x9, 0x50, 0xa7,0x5e, 0xcf, 0x7f, 0x9, 0x50, 0xa7,0x3,0xd, 0xa";
   // dataInfoSent = String(dataInfo[0]) + String(dataInfo[1]) + String(dataInfo[2]);
@@ -509,70 +449,32 @@ bool writeDataStringToTCPSocket() {
   Serial.print("\n");
   Serial.print("\n");
 
-
   delay(1000);
   Serial.println(F("StartSend Node 1 ..."));
+
   array_to_string(Node1.buff, Node1.len, str);
   tcp.StartSend();
+  Serial.println("----- NODE FORWARD HEX -----");
   for(int u = 0; u < Node1.len; u++){
     tcp.write((uint8_t)Node1.buff[u]);
-
-    Serial.print(Node1.buff[u], HEX);
+    Serial.println(Node1.buff[u], HEX);
   }
-
-  Serial.print("\n");
-
-  for(int u = 0; u < SensorMsg_size; u++){
-    tcp.write((uint8_t)SensorMsg[u]);
-
-    Serial.print((uint8_t)SensorMsg[u], HEX);
-  }
-  tcp.print(GpsMsg);
+  
   tcp.StopSend();
+  delay(1);
+
+  // Serial.println("----- Sensor Value HEX -----");
+  // for(int u = 0; u < SensorMsg_size; u++){
+  //   tcp.write((uint8_t)SensorMsg[u]);
+  //   Serial.print((uint8_t)SensorMsg[u], HEX);
+  // }
+  // Serial.println("----- Sensor GPS -----");
+  // Serial.println((GpsMsg));
+  // // tcp.print(GpsMsg);
   delay(1000);
   Serial.println(str);
-
-
   Serial.print("\n");
   Serial.print("\n");
-
-
-
-
-
-
-
-
-  // Serial.println(F("StartSend Node 2 ..."));
-  // array_to_string(Node2.buff, Node2.len, str);
-  // tcp.StartSend();
-  // tcp.println(globalData0Version);
-  // tcp.println(str);
-  // tcp.print(globalData4GPS);
-  // tcp.StopSend();
-  // delay(1000);
-  // Serial.println(str);
-  //
-  // Serial.println(F("StartSend Node 3 ..."));
-  // array_to_string(Node3.buff, Node3.len, str);
-  // tcp.StartSend();
-  // tcp.println(globalData0Version);
-  // tcp.println(str);
-  // tcp.print(globalData4GPS);
-  // tcp.StopSend();
-  // delay(1000);
-  // Serial.println(str);
-  //
-  // Serial.println(F("StartSend Node 4 ..."));
-  // array_to_string(Node4.buff, Node4.len, str);
-  // tcp.StartSend();
-  // tcp.println(globalData0Version);
-  // tcp.println(str);
-  // tcp.print(globalData4GPS);
-  // tcp.StopSend();
-  // delay(1000);
-  // Serial.println(str);
-
   Serial.print(millis());
   Serial.println(" writeDataStringToTCPSocket");
 }
@@ -682,16 +584,13 @@ void setup()  {
 }
 
 //////////////////////////////mainLOOP////////////////////////////////
-
 long time_now, time_prev1, time_prev2 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
 
 if (time_now > 5000)
-  //if (time_now > 35000)
   {
-
     if (time_now < time_prev1) {
       asm volatile ("  jmp 0");
     }
@@ -726,17 +625,12 @@ void SentNodeData (void) {
   _rssi = gsm.SignalQuality();
   Serial.println(gsm.SignalQuality());
 
-  Serial.println(F("Disconnect net"));
+  Serial.println(F("Calling net.DisConnect"));
   bool netDisConnectStatus = net.DisConnect();
   Serial.print("netDisconnect Status = ");
   Serial.println(netDisConnectStatus);
-  if (netDisConnectStatus) {
-    Serial.println("NET DISCONNECTED OK.");
-  }
-  else {
-    Serial.println("NET DISCONNECTED FAILED.");
-  }
   net.Configure(APN, USER, PASS);
+  Serial.println(F("Calling net.Connect"));
   bool netConnectStatus = net.Connect();
   Serial.print("netConnectStatus = ");
   Serial.println(netConnectStatus);
@@ -759,9 +653,7 @@ void SentNodeData (void) {
   Serial.println(millis() / 1000);
   http.begin(1);
 
-  builDataStringForTCPSocket();
-
-
+  // builDataStringForTCPSocket();
   readAllSensors();
   sendDataOverTCPSocket();
 
@@ -772,8 +664,8 @@ void SentNodeData (void) {
   sendSleepTimeInSecondToNode(globalSleepTimeFromNetpieInMemory);
 
 }
-void GET_Position (void) {
 
+void GET_Position (void) {
   gsm.begin(&Serial3, 9600); // myserial
   gsm.PowerOn();
   while (gsm.WaitReady()) {}
