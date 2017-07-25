@@ -64,12 +64,6 @@ void readAllSensors() {
   uint32_t field4 = _soundStatus*100;
   uint32_t field5 = _batt;
 
-  field1 = 1;
-  field2 = 2;
-  field3 = 3;
-  field4 = 4;
-  field5 = 5;
-
   Serial.println(field1, HEX);
   Serial.println(field2, HEX);
   Serial.println(field3, HEX);
