@@ -30,6 +30,10 @@ void readAllSensors() {
 }
 
 int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
+<<<<<<< HEAD
+=======
+  const uint8_t MESSAGE_SIZE = 25;
+>>>>>>> 831dbe5a7d731d3eed5fb1b52cec3019d42d1d6f
 
   message[0] = 0xfa; //<---- header
   message[1] = 0xfb; //<---- header
@@ -62,6 +66,18 @@ int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
   uint32_t field3 = _pressBME;
   uint32_t field4 = _soundStatus*100;
   uint32_t field5 = _batt;
+
+  field1 = 1;
+  field2 = 2;
+  field3 = 3;
+  field4 = 4;
+  field5 =  5;
+
+  Serial.println(field1, HEX);
+  Serial.println(field2, HEX);
+  Serial.println(field3, HEX);
+  Serial.println(field4, HEX);
+  Serial.println(field5, HEX);
 
   memcpy(&message[19 + 4*0], (const void *)&field1, 4);
   memcpy(&message[19 + 4*1], (const void *)&field2, 4);
