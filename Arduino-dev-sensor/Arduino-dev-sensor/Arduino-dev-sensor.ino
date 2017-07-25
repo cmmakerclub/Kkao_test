@@ -430,19 +430,19 @@ void writeArduinoSensor() {
 
 bool writeDataStringToTCPSocket() {
   Serial.println("Write From Slave");
-
-  writeForwaredSensorFromSlave(Node1);
-  delay(10000);
-  writeForwaredSensorFromSlave(Node2);
-  delay(10000);
-  writeForwaredSensorFromSlave(Node3);
-  delay(10000);
-  writeForwaredSensorFromSlave(Node4);
-  delay(10000);
-
-  Serial.println("Write Arduino Sensor");
+  delay(1000);
   writeArduinoSensor();
   delay(1000);
+  writeForwaredSensorFromSlave(Node1);
+  delay(1000);
+  writeForwaredSensorFromSlave(Node2);
+  delay(1000);
+  writeForwaredSensorFromSlave(Node3);
+  delay(1000);
+  writeForwaredSensorFromSlave(Node4);
+  delay(1000);
+
+  Serial.println("Write Arduino Sensor");
 }
 
 void array_to_string(byte array[], unsigned int len, char buffer[])
@@ -554,7 +554,7 @@ long time_now, time_prev1, time_prev2 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-  if (time_now > (35000L)) {
+  if (time_now > (15000L)) {
       if (time_now < time_prev1) {
         asm volatile ("  jmp 0");
       }
@@ -619,6 +619,7 @@ void SentNodeData (void) {
 
   // builDataStringForTCPSocket();
   readAllSensors();
+
   sendDataOverTCPSocket();
 
   gsm.PowerOff();
