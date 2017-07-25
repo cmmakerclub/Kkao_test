@@ -84,10 +84,14 @@ void readAllSensors() {
   message[20 + 4*5] = strlen(gps);
   memcpy(&message[21 + 4*5], gps, strlen(gps));
 
+  Serial.print("GPS LEN =");
+  Serial.println(strlen(gps));
+  Serial.println((char*)gps);
   uint8_t sum = 0;
   for (uint8_t i = 0; i < (21 + 4*5 + strlen(gps)); i++) {
     sum ^= message[i];
   }
+  
   message[21 + 4*5 + strlen(gps)+1] = sum;
   message[21 + 4*5 + strlen(gps)+2] = 0x0d;
   message[21 + 4*5 + strlen(gps)+3] = 0x0a;

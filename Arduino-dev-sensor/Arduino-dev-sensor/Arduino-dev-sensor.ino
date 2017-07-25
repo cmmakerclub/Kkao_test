@@ -410,31 +410,28 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
 }
 
 void writeArduinoSensor() {
-  // ARDUINO's SENSOR
-  // {
-  //   Serial.println("Being Sent");
-    #define SensorMsg_size 100
-    char SensorMsg[SensorMsg_size] = "";
-    String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
-    int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8],
+  #define SensorMsg_size 100
+  char SensorMsg[SensorMsg_size] = "";
+  String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
+  Serial.println("GPS MSG = ");
+  Serial.println(GpsMsg);
+  int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8],
         (uint8_t *)&GpsMsg);
 
-    Serial.print("\n");
-    Serial.print("\n");
+  Serial.print("\n");
+  Serial.print("\n");
 
-    delay(1000);
-    tcp.StartSend();
-  //   // Serial.println();
-    Serial.println("----- Sensor Value HEX -----");
-    Serial.println(sensor_len);
-    for(int u = 0; u < sensor_len; u++){
-      tcp.write((uint8_t)SensorMsg[u]);
-      Serial.print((uint8_t)SensorMsg[u], HEX);
-    }
-    Serial.println();
-    tcp.StopSend();
-    delay(1000);
-  // }
+  delay(1000);
+  tcp.StartSend();
+  Serial.println("----- Sensor Value HEX -----");
+  Serial.println(sensor_len);
+  for(int u = 0; u < sensor_len; u++){
+    tcp.write((uint8_t)SensorMsg[u]);
+    Serial.print((uint8_t)SensorMsg[u], HEX);
+  }
+  Serial.println();
+  tcp.StopSend();
+  delay(1000);
 }
 
 bool writeDataStringToTCPSocket() {
@@ -443,6 +440,8 @@ bool writeDataStringToTCPSocket() {
   uint8_t tmp[6] = {0};
 
   if(!CheckMac(tmp, Node1.mac)){
+    delay(1000);
+    writeArduinoSensor();
     delay(1000);
     writeArduinoSensor();
     delay(1000);

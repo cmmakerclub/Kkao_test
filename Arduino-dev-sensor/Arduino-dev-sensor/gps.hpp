@@ -2,7 +2,7 @@
 #include "gnss.h"
 
 GNSS gps;
-float GPS_SEARCH_TIMEOUT_S = 40;
+float GPS_SEARCH_TIMEOUT_S = 120;
 extern uint8_t LED;
 
 // volatile char GNSS_data[58] = "";
@@ -94,18 +94,15 @@ void startGPSService() {
     Serial.println("FOUND GPS....");
     Serial.println("COVERTING to Coordinate....");
     convertGPSRawDataToLatLng();
-    /*
-    // cache GPS Information
-    // EEPROMStructure gpsValue = { gps_lat.toDouble(), gps_lon.toDouble() };
-    // eeAddress += sizeof(eepromFloatInitializedByte);
-    // EEPROM.put(eeAddress, gpsValue);
-    // Serial.println("update GPS cache...");
-    // Serial.print(gpsValue.lat);
-    // Serial.print(F("  "));
-    // Serial.print(gpsValue.lng);
-    // Serial.print(F("  "));
-    // Serial.println(gps_alt);
-    */
+
+    Serial.print(F("GPS_LAT: "));
+    Serial.println(gps_lat);
+
+    Serial.print(F("GPS_LON: "));
+    Serial.println(gps_lon);
+
+    Serial.print(F("GPS_ALT: "));
+    Serial.println(gps_alt);
   }
   else {
     Serial.println("GPS TIMEOUT..");
