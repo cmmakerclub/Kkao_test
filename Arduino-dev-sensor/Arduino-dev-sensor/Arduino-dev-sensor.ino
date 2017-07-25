@@ -328,8 +328,8 @@ bool open_tcp() {
 }
 
 void debugSlave() {
+  Serial.println("======== DEBUG SLAVE ========");
   Serial.print(millis());
-  Serial.println(" writeDataStringToTCPSocket");
   //
   Serial.print("MAC1 ");
   for (int i = 0; i < 6; i++) {
@@ -372,8 +372,7 @@ void debugSlave() {
     Serial.print(" ");
   }
   Serial.print("\n");
-  Serial.print("\n");
-
+  Serial.println("/======== DEBUG SLAVE ========");
 }
 
 
@@ -391,7 +390,6 @@ void writeForwaredSensorFromSlave() {
   }
   Serial.println("Calling StopSend..");
   tcp.StopSend();
-  delay(1000);
   Serial.println("finish!");
 }
 
@@ -426,6 +424,9 @@ void writeArduinoSensor() {
 bool writeDataStringToTCPSocket() {
   Serial.println("Write From Slave");
   writeForwaredSensorFromSlave();
+  delay(1000);
+  Serial.println("Write Arduino Sensor");
+  writeArduinoSensor();
   delay(1000);
 }
 
@@ -538,9 +539,8 @@ long time_now, time_prev1, time_prev2 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-
-if (time_now > 5000)
-  {
+if (time_now > (35000L)) {
+    Serial.println(">35");
     if (time_now < time_prev1) {
       asm volatile ("  jmp 0");
     }
