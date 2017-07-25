@@ -37,7 +37,7 @@ void addSensorMsg(uint8_t *message) {
     uint32_t field4 = _soundStatus*100;
     uint32_t field5 = _batt;
 
-    message[0] = 0xff;
+    message[0] = 0xfa;
     message[1] = 0xfb;
 
     memcpy(&message[2], (const void *)&field1, 4);

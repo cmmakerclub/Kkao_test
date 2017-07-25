@@ -396,6 +396,7 @@ bool writeDataStringToTCPSocket() {
   const int SensorMsg_size = 25;
   char SensorMsg[SensorMsg_size] = "";
   addSensorMsg(SensorMsg);
+  
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
   Serial.print("\n");
   Serial.print("\n");
@@ -413,11 +414,13 @@ bool writeDataStringToTCPSocket() {
   delay(1);
 
   tcp.StartSend();
+  Serial.println();
   Serial.println("----- Sensor Value HEX -----");
   for(int u = 0; u < SensorMsg_size; u++){
     tcp.write((uint8_t)SensorMsg[u]);
     Serial.print((uint8_t)SensorMsg[u], HEX);
   }
+  Serial.println();
   Serial.println("----- Sensor GPS -----");
   Serial.println((GpsMsg));
   // tcp.print(GpsMsg);
