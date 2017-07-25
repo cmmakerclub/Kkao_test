@@ -89,6 +89,8 @@ void readAllSensors() {
 
   Serial.print("____GPS LEN =");
   Serial.println(gps->length());
+  Serial.println(gps->length(), HEX);
+  Serial.println(message[20 + 4*5], HEX);
   Serial.print("____GPS VAL =");
   Serial.println(gpsBuffer);
   uint8_t sum = 0;

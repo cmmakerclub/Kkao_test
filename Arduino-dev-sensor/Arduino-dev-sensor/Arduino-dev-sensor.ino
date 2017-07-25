@@ -429,6 +429,7 @@ void writeArduinoSensor() {
   for(int u = 0; u < sensor_len; u++){
     tcp.write((uint8_t)SensorMsg[u]);
     Serial.print((uint8_t)SensorMsg[u], HEX);
+    delay(1);
   }
   Serial.println();
   tcp.StopSend();
