@@ -148,10 +148,8 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
         memset(Node1.buff, 0, sizeof(Node1.buff));
         memcpy(&Node1.buff, data, len);
         Node1.len = len;
-
         Serial.println("");
         Serial.println("data node1 Registered....");
-
         break;
       case 1:
         memcpy(&Node2.mac, tmp, 6);
@@ -349,58 +347,13 @@ bool open_tcp() {
 bool writeDataStringToTCPSocket() {
   Serial.print(millis());
   Serial.println(" writeDataStringToTCPSocket");
-  // tcp.println(globalData0Version);
-  // tcp.println(globalData1);
-  // tcp.println(globalData2);
-  // tcp.println(globalData3);
-  // tcp.println(globalData4GPS);
-  // tcp.print(globalData5);
-
-  // char dataInfo[]  = {
-  //   0xfc, 0xfd, 0x18, 0xfe, 0x34, 0xdb, 0x3b, 0x98, 0x18, 0xfe, 0x34, 0xee, 0xcd, 0x53, 0x30,
-  //   0xff, 0xfa, 0x1, 0x2, 0x3, 0x1, 0x28, 0xa, 0x0, 0x0, 0x38, 0x18, 0x0, 0x0, 0xe7, 0x3, 0x0, 0x0, 0x19, 0x5, 0x0,
-  //   0x0, 0xa, 0x65, 0x73, 0x70, 0x4c, 0x6f, 0x67, 0x30, 0x30, 0x35, 0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-  //   0x0, 0x0, 0x0, 0x0, 0x0, 0xfa, 0xd, 0xa
-  // };
-
-  // byte dataInfo[]  = {  // 21 data
-  //   0xfa, 0xfb, 0xff, 0xff, 0xff, 0xff,
-  //   0x5c, 0xcf, 0x7f, 0x9, 0x50, 0xa7,
-  //   0x5e, 0xcf, 0x7f, 0x9, 0x50, 0xa7,
-  //   0x3,
-  //   0xd, 0xa
-  // };
-
-  // byte dataInfo[]  = {  // 70 data
-  //   0xfc, 0xfd, 0x18, 0xfe, 0x34, 0xdb, 0x3b, 0x98, 0x18, 0xfe, 0x34, 0xee, 0xcd, 0x53, 0x30, // wrap
-  //   0xff, 0xfa, 0x1, 0x2, 0x3, 0x1,   //  head data
-  //   0x28, 0xa, 0x0, 0x0,    //  val1
-  //   0x38, 0x18, 0x0, 0x0,   //  val2
-  //   0xe7, 0x3, 0x0, 0x0,    //  val3
-  //   0x19, 0x5, 0x0, 0x0,    //  batt
-  //   0xa,                    //  name len
-  //   0x65, 0x73, 0x70, 0x4c, 0x6f, 0x67, 0x30, 0x30, 0x35, 0x20,   //  name to String
-  //   0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,   //  free data
-  //   0xfa, 0xd, 0xa          //  end wrap
-  //  };
-
-  // char str[32] = "";
-  // array_to_string(dataInfo, 21, str);
-
-  // String dataInfoSent = "" ; //= "0xfa, 0xfb, 0xff, 0xff, 0xff, 0xff,0x5c, 0xcf, 0x7f, 0x9, 0x50, 0xa7,0x5e, 0xcf, 0x7f, 0x9, 0x50, 0xa7,0x3,0xd, 0xa";
-  // dataInfoSent = String(dataInfo[0]) + String(dataInfo[1]) + String(dataInfo[2]);
-  // tcp.println(globalData0Version);
-  // tcp.println(globalData4GPS);
-
-
-  //  Serial.print("\n");
-  //  Serial.print("\n");
   //
   Serial.print("MAC1 ");
   for (int i = 0; i < 6; i++) {
     Serial.print(Node1.mac[i], HEX);
     Serial.print(" ");
   }
+
   //  Serial.print("\t");  Serial.print("\t");
   //  for (int i = 0; i < Node1.len; i++) {
   //    Serial.print(Node1.buff[i], HEX);
@@ -444,33 +397,31 @@ bool writeDataStringToTCPSocket() {
   char SensorMsg[SensorMsg_size] = "";
   addSensorMsg(SensorMsg);
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
-
-
   Serial.print("\n");
   Serial.print("\n");
 
   delay(1000);
   Serial.println(F("StartSend Node 1 ..."));
-
   array_to_string(Node1.buff, Node1.len, str);
   tcp.StartSend();
   Serial.println("----- NODE FORWARD HEX -----");
   for(int u = 0; u < Node1.len; u++){
     tcp.write((uint8_t)Node1.buff[u]);
-    Serial.println(Node1.buff[u], HEX);
+    Serial.print(Node1.buff[u], HEX);
   }
-  
   tcp.StopSend();
   delay(1);
 
-  // Serial.println("----- Sensor Value HEX -----");
-  // for(int u = 0; u < SensorMsg_size; u++){
-  //   tcp.write((uint8_t)SensorMsg[u]);
-  //   Serial.print((uint8_t)SensorMsg[u], HEX);
-  // }
-  // Serial.println("----- Sensor GPS -----");
-  // Serial.println((GpsMsg));
-  // // tcp.print(GpsMsg);
+  tcp.StartSend();
+  Serial.println("----- Sensor Value HEX -----");
+  for(int u = 0; u < SensorMsg_size; u++){
+    tcp.write((uint8_t)SensorMsg[u]);
+    Serial.print((uint8_t)SensorMsg[u], HEX);
+  }
+  Serial.println("----- Sensor GPS -----");
+  Serial.println((GpsMsg));
+  // tcp.print(GpsMsg);
+  tcp.StopSend();
   delay(1000);
   Serial.println(str);
   Serial.print("\n");

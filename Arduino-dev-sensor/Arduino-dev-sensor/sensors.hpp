@@ -17,33 +17,6 @@ float _tempBME, _humidBME, _pressBME, _soundStatus, _batt;
 extern uint8_t LED;
 long duration;
 
-// void readDistance() {
-//   uint32_t sum = 0 ;
-//   for (int i = 1; i <= 3; i++) {
-//     digitalWrite(TRIG, LOW);
-//     delayMicroseconds(2);
-//     digitalWrite(TRIG, HIGH);
-//     delayMicroseconds(5);
-//     digitalWrite(TRIG, LOW);
-//
-//     pinMode(ECHO, INPUT);
-//     duration = pulseIn(ECHO, HIGH);
-//
-//     if (_volume <= 20) {
-//       _volume = 20;
-//     } else if (_volume >= 500) {
-//       _volume = 500;
-//     }
-//
-//     _volume = (duration / 2) / 29.1;
-//     sum += _volume;
-//   }
-//   _volume = sum / 3;
-//   Serial.print("_volume = ");
-//   Serial.println(_volume);
-// }
-
-
 void readAllSensors() {
 
   bme.begin();  // bme sensor begin
