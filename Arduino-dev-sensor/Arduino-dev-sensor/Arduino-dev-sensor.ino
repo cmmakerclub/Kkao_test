@@ -565,8 +565,12 @@ void loop() {
 
       if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
         time_prev1 = time_now;
-        //GET_Position();
-        //SentNodeData();
+
+        readAllSensors();
+        GET_Sound ();
+
+        GET_Position();
+        SentNodeData();
 
 
         Peroid = globalSleepTimeFromNetpieInMemory;
@@ -575,21 +579,23 @@ void loop() {
 
     if (time_now - time_prev2 >= 1000) {
       time_prev2 = time_now;
-      readAllSensors();
-      GET_Sound ();
 
-      Serial.println("====  Printing Sensor Values ======");
-      Serial.print("\treadTemperature= ");
-      Serial.print(_tempBME);
-      Serial.print("\treadHumidity= ");
-      Serial.print(_humidBME);
-      Serial.print("\treadPressure= ");
-      Serial.print(_pressBME);
-      Serial.print("\tSound= ");
-      Serial.print(_soundStatus);
-      Serial.print("\tanalogRead= ");
-      Serial.println(_batt*30/1023);
-      Serial.println("====  Printing Sensor Values ======");
+
+      // readAllSensors();
+      // GET_Sound ();
+      //
+      // Serial.println("====  Printing Sensor Values ======");
+      // Serial.print("\treadTemperature= ");
+      // Serial.print(_tempBME);
+      // Serial.print("\treadHumidity= ");
+      // Serial.print(_humidBME);
+      // Serial.print("\treadPressure= ");
+      // Serial.print(_pressBME);
+      // Serial.print("\tSound= ");
+      // Serial.print(_soundStatus);
+      // Serial.print("\tanalogRead= ");
+      // Serial.println(_batt*30/1023);
+      // Serial.println("====  Printing Sensor Values ======");
 
 
       digitalWrite(LED, !digitalRead(LED));
@@ -658,7 +664,7 @@ void SentNodeData (void) {
   http.begin(1);
 
   // builDataStringForTCPSocket();
-  readAllSensors();
+  // readAllSensors();
 
   sendDataOverTCPSocket();
 

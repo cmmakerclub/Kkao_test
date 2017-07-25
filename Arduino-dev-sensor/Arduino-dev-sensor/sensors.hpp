@@ -30,10 +30,7 @@ void readAllSensors() {
 }
 
 int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
-<<<<<<< HEAD
-=======
-  const uint8_t MESSAGE_SIZE = 25;
->>>>>>> 831dbe5a7d731d3eed5fb1b52cec3019d42d1d6f
+
 
   message[0] = 0xfa; //<---- header
   message[1] = 0xfb; //<---- header
