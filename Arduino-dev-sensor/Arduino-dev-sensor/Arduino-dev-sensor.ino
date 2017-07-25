@@ -1,4 +1,4 @@
-#define SERIAL_RX_BUFFER_SIZE 256
+#define SERIAL_RX_BUFFER_SIZE 512
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -411,6 +411,7 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
 }
 
 void writeArduinoSensor() {
+  Serial.println("writeArduinoSensor");
   #define SensorMsg_size 100
   char SensorMsg[SensorMsg_size] = "";
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
@@ -437,7 +438,7 @@ void writeArduinoSensor() {
 }
 
 bool writeDataStringToTCPSocket() {
-  Serial.println("Write From Slave");
+  Serial.println("writeDataStringToTCPSocket");
 
   uint8_t tmp[6] = {0};
 
@@ -445,9 +446,9 @@ bool writeDataStringToTCPSocket() {
     delay(1000);
     writeArduinoSensor();
     delay(1000);
-    writeArduinoSensor();
-    delay(1000);
     writeForwaredSensorFromSlave(Node1);
+    delay(1000);
+    writeArduinoSensor();
   }
 
   if(!CheckMac(tmp, Node2.mac)){
@@ -467,7 +468,7 @@ bool writeDataStringToTCPSocket() {
 
   delay(1000);
 
-  Serial.println("Write Arduino Sensor");
+  Serial.println("/writeDataStringToTCPSocket");
 }
 
 void array_to_string(byte array[], unsigned int len, char buffer[])
@@ -582,7 +583,7 @@ long time_now, time_prev1, time_prev2, time_prev3 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-  if (time_now > (35000L)) {
+  if (time_now > 35000L) {
       if (time_now < time_prev1) {
         asm volatile ("  jmp 0");
       }
