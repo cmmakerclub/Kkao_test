@@ -434,16 +434,31 @@ void writeArduinoSensor() {
 
 bool writeDataStringToTCPSocket() {
   Serial.println("Write From Slave");
-  delay(1000);
-  writeArduinoSensor();
-  delay(1000);
-  writeForwaredSensorFromSlave(Node1);
-  delay(1000);
-  writeForwaredSensorFromSlave(Node2);
-  delay(1000);
-  writeForwaredSensorFromSlave(Node3);
-  delay(1000);
-  writeForwaredSensorFromSlave(Node4);
+
+  uint8_t tmp[6] = {0};
+
+  if(!CheckMac(tmp, Node1.mac)){
+    delay(1000);
+    writeArduinoSensor();
+    delay(1000);
+    writeForwaredSensorFromSlave(Node1);
+  }
+
+  if(!CheckMac(tmp, Node2.mac)){
+    delay(1000);
+    writeForwaredSensorFromSlave(Node2);
+  }
+
+  if(!CheckMac(tmp, Node3.mac)){
+    delay(1000);
+    writeForwaredSensorFromSlave(Node3);
+  }
+
+  if(!CheckMac(tmp, Node4.mac)){
+    delay(1000);
+    writeForwaredSensorFromSlave(Node4);
+  }
+
   delay(1000);
 
   Serial.println("Write Arduino Sensor");
@@ -581,7 +596,7 @@ void loop() {
         // Serial.print("\tanalogRead= ");
         // Serial.println(_batt*30/1023);
         // Serial.println("====  Printing Sensor Values ======");
-        
+
         if((_batt*30/1023) > 9.0f){
           GET_Position();
           SentNodeData();
