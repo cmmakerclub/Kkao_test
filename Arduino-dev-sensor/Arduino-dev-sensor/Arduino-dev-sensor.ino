@@ -263,7 +263,7 @@ String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
   Serial.println(F("Send HTTP GET"));
-  http.url("http://api.netpie.io/topic/SmartTrash/time?auth=YGO1C5bATVNctTE:wN7khNDXgadngRN5WxMGMc7z0");
+  http.url("https://api.netpie.io/topic/SmartTrash/time/master/2?retain&auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
   Serial.println(http.get());
   // Serial.println(F("Clear data in RAM"));
   file.Delete(RAM, "*");
