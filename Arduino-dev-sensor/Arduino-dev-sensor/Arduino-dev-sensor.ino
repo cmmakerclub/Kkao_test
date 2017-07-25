@@ -392,7 +392,7 @@ void debugSlave() {
 
 void writeForwaredSensorFromSlave(NODEStructure &node) {
   debugSlave();
-  Serial.println(F("StartSend Node 1 ..."));
+  Serial.println();
   Serial.println("Caling StartSend");
   tcp.StartSend();
   delay(1000);
@@ -404,6 +404,7 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
     Serial.print(node.buff[u], HEX);
     delay(1);
   }
+  Serial.println();
   Serial.println("Calling StopSend..");
   tcp.StopSend();
   Serial.println("finish!");
@@ -416,7 +417,7 @@ void writeArduinoSensor() {
   Serial.println("GPS MSG = ");
   Serial.println(GpsMsg);
   int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8],
-        (uint8_t *)&GpsMsg);
+        &GpsMsg);
 
   Serial.print("\n");
   Serial.print("\n");
@@ -580,7 +581,7 @@ long time_now, time_prev1, time_prev2, time_prev3 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-  if (time_now > (15000L)) {
+  if (time_now > (35000L)) {
       if (time_now < time_prev1) {
         asm volatile ("  jmp 0");
       }

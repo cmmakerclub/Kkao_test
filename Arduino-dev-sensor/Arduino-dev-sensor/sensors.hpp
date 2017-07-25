@@ -29,7 +29,7 @@ void readAllSensors() {
 
 }
 
-  int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
+  int addSensorMsg(uint8_t *message, uint8_t *mac, String *gps) {
   const uint8_t MESSAGE_SIZE = 25;
 
   message[0] = 0xfa; //<---- header
@@ -81,20 +81,24 @@ void readAllSensors() {
   Serial.println("==========================");
 
   //
-  message[20 + 4*5] = strlen(gps);
-  memcpy(&message[21 + 4*5], gps, strlen(gps));
+  char gpsBuffer[50];
+  uint8_t gpsLength = gps->length();
+  gps->getBytes(gpsBuffer, gpsLength);
+  message[20 + 4*5] = gps->length();
+  memcpy(&message[21 + 4*5], gpsBuffer, gpsLength);
 
-  Serial.print("GPS LEN =");
-  Serial.println(strlen(gps));
-  Serial.println((char*)gps);
+  Serial.print("____GPS LEN =");
+  Serial.println(gps->length());
+  Serial.print("____GPS VAL =");
+  Serial.println(gpsBuffer);
   uint8_t sum = 0;
-  for (uint8_t i = 0; i < (21 + 4*5 + strlen(gps)); i++) {
+  for (uint8_t i = 0; i < (21 + 4*5 + gpsLength); i++) {
     sum ^= message[i];
   }
-  
-  message[21 + 4*5 + strlen(gps)+1] = sum;
-  message[21 + 4*5 + strlen(gps)+2] = 0x0d;
-  message[21 + 4*5 + strlen(gps)+3] = 0x0a;
 
-  return 21 + 4*5 + strlen(gps)+3 +1;
+  message[21 + 4*5 + gps->length()+1] = sum;
+  message[21 + 4*5 + gps->length()+2] = 0x0d;
+  message[21 + 4*5 + gps->length()+3] = 0x0a;
+
+  return 21 + 4*5 + gpsLength+3 +1;
 }
