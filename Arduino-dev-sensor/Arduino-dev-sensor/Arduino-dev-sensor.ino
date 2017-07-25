@@ -47,6 +47,10 @@ TCP tcp;
 UC_FILE file;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static uint32_t Sound_sumDBm, Sound_count;
+static uint16_t Sound_max, Sound_min;
+
 struct NODEStructure {
   uint8_t nid;
   uint8_t mac[6];
@@ -550,7 +554,7 @@ void setup()  {
 }
 
 //////////////////////////////mainLOOP////////////////////////////////
-long time_now, time_prev1, time_prev2 ;
+long time_now, time_prev1, time_prev2, time_prev3 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
@@ -562,15 +566,51 @@ void loop() {
       if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
         time_prev1 = time_now;
         //GET_Position();
-        SentNodeData();
+        //SentNodeData();
+
+
         Peroid = globalSleepTimeFromNetpieInMemory;
       }
     }
 
     if (time_now - time_prev2 >= 1000) {
       time_prev2 = time_now;
+      readAllSensors();
+      GET_Sound ();
+
+      Serial.println("====  Printing Sensor Values ======");
+      Serial.print("\treadTemperature= ");
+      Serial.print(_tempBME);
+      Serial.print("\treadHumidity= ");
+      Serial.print(_humidBME);
+      Serial.print("\treadPressure= ");
+      Serial.print(_pressBME);
+      Serial.print("\tSound= ");
+      Serial.print(_soundStatus);
+      Serial.print("\tanalogRead= ");
+      Serial.println(_batt*30/1023);
+      Serial.println("====  Printing Sensor Values ======");
+
+
       digitalWrite(LED, !digitalRead(LED));
     }
+
+    if (time_now - time_prev3 >= 100) {
+      time_prev3 = time_now;
+
+      int16_t tmp = abs(Sound_max - Sound_min);
+      float ttmp = (13.619551*(log(tmp))+ 35);
+      if(ttmp > 0 && ttmp < 120) {
+        Sound_sumDBm += ttmp;
+        Sound_count++;
+      }
+      Sound_max = 0;
+      Sound_min = 1023;
+    }
+
+    uint16_t Sound_tmp = analogRead(A0);
+    if(Sound_tmp > Sound_max) Sound_max = Sound_tmp;
+    if(Sound_tmp < Sound_min) Sound_min = Sound_tmp;
   }
 
 void SentNodeData (void) {
@@ -638,4 +678,10 @@ void GET_Position (void) {
   //////////////////////////////GPS//////////////////////////////
   gsm.PowerOff();
 
+}
+
+void GET_Sound (void) {
+  _soundStatus = ((float)Sound_sumDBm/Sound_count);
+  Sound_sumDBm =  0;
+  Sound_count = 0;
 }

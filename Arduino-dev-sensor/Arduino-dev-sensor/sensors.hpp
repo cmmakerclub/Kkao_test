@@ -24,14 +24,13 @@ void readAllSensors() {
   _humidBME = bme.readHumidity();
   _pressBME = bme.readPressure() / 100.0F;
 
-  pinMode(A0, INPUT);
-  _batt = analogRead(A0);
+  pinMode(A1, INPUT);
+  _batt = analogRead(A1);
 
 }
 
 int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
-  const uint8_t MESSAGE_SIZE = 25;
-  
+
   message[0] = 0xfa; //<---- header
   message[1] = 0xfb; //<---- header
 
