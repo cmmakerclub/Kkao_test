@@ -569,9 +569,10 @@ void loop() {
         readAllSensors();
         GET_Sound ();
 
-        GET_Position();
-        SentNodeData();
-
+        if((_batt*30/1023) > 9.0f){
+          GET_Position();
+          SentNodeData();
+        }
 
         Peroid = globalSleepTimeFromNetpieInMemory;
       }
