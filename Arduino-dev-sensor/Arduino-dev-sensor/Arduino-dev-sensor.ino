@@ -6,7 +6,6 @@
 #include "internet.h"
 //#include "CMMC_Interval.hpp"
 #include "tcp.h"
-#include <EEPROM.h>
 #include <Wire.h>
 #include "File.h"
 #include "http.h"
@@ -19,17 +18,7 @@ uint8_t LED = 13;
 #include "./sensors.hpp"
 #include "gps.hpp"
 
-struct EEPROMStructure {
-  double lat;
-  double lng;
-  uint32_t sleepTimeS;
-};
-
 HTTP http;
-float eepromFloatInitializedByte = 0.000f;
-EEPROMStructure globalCachedEEPROM;
-int eeAddress = 0;
-
 extern bool gotGPSLocation;
 
 // bool ret = tcp.Open("sock.traffy.xyz","Connecting to... ");
@@ -232,7 +221,7 @@ String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
   Serial.println(F("Send HTTP GET"));
-  http.url("http://api.netpie.io/topic/SmartTrash/time/master/3?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
+  http.url("http://api.netpie.io/topic/SmartTrash/time/master/1?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
   Serial.println(http.get());
   // Serial.println(F("Clear data in RAM"));
   file.Delete(RAM, "*");
@@ -393,7 +382,7 @@ void writeArduinoSensor() {
   Serial.println(sensor_len);
   for(int u = 0; u < sensor_len; u++){
     tcp.write((uint8_t)SensorMsg[u]);
-    Serial.print((uint8_t)SensorMsg[u], HEX);
+    Serial.println((uint8_t)SensorMsg[u], HEX);
     delay(1);
   }
   tcp.StopSend();
@@ -408,9 +397,9 @@ bool writeDataStringToTCPSocket() {
 
   if(!CheckMac(tmp, Node1.mac)){
     delay(1000);
-    writeForwaredSensorFromSlave(Node1);
-    delay(1000);
     writeArduinoSensor();
+    delay(1000);
+    writeForwaredSensorFromSlave(Node1);
   }
 
   if(!CheckMac(tmp, Node2.mac)){
@@ -463,20 +452,6 @@ void sendSleepTimeInSecondToNode(uint8_t stmSleepTimeInMinute) {
   Serial.println(F("Sent..."));
 }
 
-void printEEPROMInformation() {
-  Serial.println("====================");
-  Serial.println("  CACHED EEPROM  ");
-  Serial.println("====================");
-  Serial.print("globalCachedEEPROM.lat= ");
-  Serial.println(globalCachedEEPROM.lat);
-  Serial.print("globalCachedEEPROM.lng= ");
-  Serial.println(globalCachedEEPROM.lng);
-  Serial.print("globalCachedEEPROM.sleepTimeS = ");
-  Serial.println(globalCachedEEPROM.sleepTimeS);
-  Serial.println("====================");
-  Serial.println("====================");
-}
-
 void sleepArduino(uint32_t sleepTimeInMs) {
   Serial.println(F("gsm PowerOff zzZ"));
   // Serial.print("sleep for");
@@ -526,7 +501,6 @@ void setup()  {
   pinMode(A2, OUTPUT);
   pinMode(A3, OUTPUT);
 
-  //  setEEProm();
   //  bme.begin();  // bme sensor begin
 
   // Just blink when program started
