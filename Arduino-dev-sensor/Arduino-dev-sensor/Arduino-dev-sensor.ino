@@ -89,8 +89,10 @@ uint8_t MassageAnalysis() {
             sum ^= tmp[j + k];
           }
           if (sum == tmp[i - j - 2]) {
+            digitalWrite(A3,1);
             memcpy(&mac, &tmp[j + 8], 6);
             MassageSave(mac, &tmp[j], i - j);
+            digitalWrite(A3,0);
             return 1;
           } else {
             return 0;
@@ -556,7 +558,10 @@ void setup()  {
   Serial.println(F("Program Start."));
   Serial.print(F("freeMemory()="));
   Serial.println(freeMemory());
+
   pinMode(LED, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
 
   //  setEEProm();
   //  bme.begin();  // bme sensor begin
