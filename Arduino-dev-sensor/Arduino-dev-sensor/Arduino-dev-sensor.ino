@@ -228,42 +228,6 @@ void debug(String data) {
   Serial.println(data);
 }
 #endif
-
-void setEEProm() {
-  EEPROM.get(eeAddress, eepromFloatInitializedByte);
-  Serial.println(eepromFloatInitializedByte, 3);
-
-  // intialize EEPROM
-  if (eepromFloatInitializedByte != 123.456f) {
-    eepromFloatInitializedByte = 123.456f;
-    // write first signature byte
-    EEPROM.put(eeAddress, eepromFloatInitializedByte);
-    // intialize eeprom structure
-    EEPROMStructure defaultEEPROMValue = { 0.0f, 0.0f, 10 };
-    eeAddress += sizeof(float);
-
-    // write default value to eeprom
-    EEPROM.put(eeAddress, defaultEEPROMValue);
-    eeAddress += sizeof(EEPROMStructure);
-
-    // LOAD EEPROM to global cache
-    Serial.println("Initialized EEPROM");
-    Serial.println("LOAD EEPROM to globalCachedEEPROM");
-    EEPROM.get(sizeof(float), globalCachedEEPROM);
-    printEEPROMInformation();
-    delay(100);
-  }
-  else { /* load EEPROM */
-    // eeAddress = sizeof(float);
-    Serial.println("========================");
-    Serial.println("LOADING CACHED IN EEPROM");
-    Serial.println("========================");
-    EEPROM.get(0 + sizeof(float), globalCachedEEPROM);
-    printEEPROMInformation();
-    delay(100);
-  }
-}
-
 String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
@@ -412,12 +376,12 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
 
 void writeArduinoSensor() {
   Serial.println("writeArduinoSensor");
-  #define SensorMsg_size 128
+  #define SensorMsg_size 172
   char SensorMsg[SensorMsg_size] = "";
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
   Serial.println("GPS MSG = ");
   Serial.println(GpsMsg);
-  int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8],
+  int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[2],
         &GpsMsg);
 
   Serial.print("\n");
@@ -432,9 +396,9 @@ void writeArduinoSensor() {
     Serial.print((uint8_t)SensorMsg[u], HEX);
     delay(1);
   }
-  Serial.println();
   tcp.StopSend();
   delay(1000);
+  Serial.println();
 }
 
 bool writeDataStringToTCPSocket() {
@@ -443,8 +407,6 @@ bool writeDataStringToTCPSocket() {
   uint8_t tmp[6] = {0};
 
   if(!CheckMac(tmp, Node1.mac)){
-    delay(1000);
-    writeArduinoSensor();
     delay(1000);
     writeForwaredSensorFromSlave(Node1);
     delay(1000);

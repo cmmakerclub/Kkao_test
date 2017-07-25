@@ -75,7 +75,7 @@ void readAllSensors() {
   //
   char gpsBuffer[50];
   uint8_t gpsLength = gps->length();
-  gps->getBytes(gpsBuffer, gpsLength);
+  gps->getBytes(gpsBuffer, gpsLength+1);
   message[20 + 4*5] = gps->length();
   memcpy(&message[21 + 4*5], gpsBuffer, gpsLength);
 
