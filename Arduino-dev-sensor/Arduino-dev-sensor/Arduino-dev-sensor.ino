@@ -393,17 +393,19 @@ bool writeDataStringToTCPSocket() {
 
   char str[100] = "";
 
-  const int SensorMsg_size = 25;
+  const int SensorMsg_size = 100;
   char SensorMsg[SensorMsg_size] = "";
-  addSensorMsg(SensorMsg);
-  
+
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi ;
+
+  int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[8], (uint8_t *)&GpsMsg);
+
   Serial.print("\n");
   Serial.print("\n");
 
   delay(1000);
   Serial.println(F("StartSend Node 1 ..."));
-  array_to_string(Node1.buff, Node1.len, str);
+
   tcp.StartSend();
   Serial.println("----- NODE FORWARD HEX -----");
   for(int u = 0; u < Node1.len; u++){
@@ -411,18 +413,19 @@ bool writeDataStringToTCPSocket() {
     Serial.print(Node1.buff[u], HEX);
   }
   tcp.StopSend();
-  delay(1);
+  delay(1000);
 
   tcp.StartSend();
   Serial.println();
   Serial.println("----- Sensor Value HEX -----");
-  for(int u = 0; u < SensorMsg_size; u++){
+  for(int u = 0; u < sensor_len; u++){
     tcp.write((uint8_t)SensorMsg[u]);
     Serial.print((uint8_t)SensorMsg[u], HEX);
   }
-  Serial.println();
-  Serial.println("----- Sensor GPS -----");
-  Serial.println((GpsMsg));
+
+  // Serial.println();
+  // Serial.println("----- Sensor GPS -----");
+  // Serial.println((GpsMsg));
   // tcp.print(GpsMsg);
   tcp.StopSend();
   delay(1000);
