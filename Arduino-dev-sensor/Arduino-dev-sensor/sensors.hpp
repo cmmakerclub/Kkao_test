@@ -68,7 +68,7 @@ int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
   field2 = 2;
   field3 = 3;
   field4 = 4;
-  field5 =  5;
+  field5 = 5;
 
   Serial.println(field1, HEX);
   Serial.println(field2, HEX);
