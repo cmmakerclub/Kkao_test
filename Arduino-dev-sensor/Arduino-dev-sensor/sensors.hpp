@@ -29,7 +29,7 @@ void readAllSensors() {
 
 }
 
-int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
+  int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
   const uint8_t MESSAGE_SIZE = 25;
 
   message[0] = 0xfa; //<---- header
@@ -86,13 +86,13 @@ int addSensorMsg(uint8_t *message, uint8_t *mac, uint8_t *gps) {
   Serial.println("       print data         ");
   Serial.println("==========================");
 
-  memcpy(&message[20 + 4*4], gps, 4);
+  memcpy(&message[20 + 4*5], gps, 4);
 
   message[20 + 4*4] = strlen(gps);
-  memcpy(&message[21 + 4*4], gps, strlen(gps));
+  memcpy(&message[21 + 4*5], gps, strlen(gps));
 
   uint8_t sum = 0;
-  for (uint8_t i = 0; i < (21 + 4*4 + strlen(gps)); i++) {
+  for (uint8_t i = 0; i < (21 + 4*5 + strlen(gps)); i++) {
     sum ^= message[i];
   }
   message[21 + 4*4 + strlen(gps)+1] = sum;
