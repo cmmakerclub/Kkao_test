@@ -412,7 +412,7 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
 
 void writeArduinoSensor() {
   Serial.println("writeArduinoSensor");
-  #define SensorMsg_size 100
+  #define SensorMsg_size 128
   char SensorMsg[SensorMsg_size] = "";
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
   Serial.println("GPS MSG = ");

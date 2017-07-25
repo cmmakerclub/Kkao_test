@@ -93,6 +93,9 @@ void startGPSService() {
   if (gotGPSLocation) {
     Serial.println("FOUND GPS....");
     Serial.println("COVERTING to Coordinate....");
+    gps_lat = "";
+    gps_lon = "";
+    gps_alt = "";
     convertGPSRawDataToLatLng();
 
     Serial.print(F("GPS_LAT: "));
