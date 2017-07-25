@@ -86,18 +86,17 @@ void readAllSensors() {
   Serial.println("       print data         ");
   Serial.println("==========================");
 
-  memcpy(&message[20 + 4*5], gps, 4);
-
-  message[20 + 4*4] = strlen(gps);
+  //
+  message[20 + 4*5] = strlen(gps);
   memcpy(&message[21 + 4*5], gps, strlen(gps));
 
   uint8_t sum = 0;
   for (uint8_t i = 0; i < (21 + 4*5 + strlen(gps)); i++) {
     sum ^= message[i];
   }
-  message[21 + 4*4 + strlen(gps)+1] = sum;
-  message[21 + 4*4 + strlen(gps)+2] = 0x0d;
-  message[21 + 4*4 + strlen(gps)+3] = 0x0a;
+  message[21 + 4*5 + strlen(gps)+1] = sum;
+  message[21 + 4*5 + strlen(gps)+2] = 0x0d;
+  message[21 + 4*5 + strlen(gps)+3] = 0x0a;
 
-  return 21 + 4*4 + strlen(gps)+3 +1;
+  return 21 + 4*5 + strlen(gps)+3 +1;
 }
