@@ -48,6 +48,7 @@ UC_FILE file;
 
 ///////////////////////////////////////////////////////////////////////////////
 struct NODEStructure {
+  uint8_t nid;
   uint8_t mac[6];
   uint8_t buff[80];
   uint8_t len;
@@ -110,6 +111,7 @@ uint8_t CheckMac(uint8_t* mac1, uint8_t* mac2) {
 void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
   static int index;
   if (CheckMac(tmp, Node1.mac)) {
+    Node1.nid = 1;
     memset(Node1.buff, 0, sizeof(Node1.buff));
     memcpy(&Node1.buff, data, len);
     Node1.len = len;
@@ -118,6 +120,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Serial.println("data node1 comming....");
 
   } else if (CheckMac(tmp, Node2.mac)) {
+    Node2.nid = 2;
     memset(Node2.buff, 0, sizeof(Node2.buff));
     memcpy(&Node2.buff, data, len);
     Node2.len = len;
@@ -126,6 +129,8 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Serial.println("data node2 comming....");
 
   } else if (CheckMac(tmp, Node3.mac)) {
+    Node3.nid = 3;
+    memset(Node2.buff, 0, sizeof(Node2.buff));
     memset(Node3.buff, 0, sizeof(Node3.buff));
     memcpy(&Node3.buff, data, len);
     Node3.len = len;
@@ -134,6 +139,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Serial.println("data node3 comming....");
 
   } else if (CheckMac(tmp, Node4.mac)) {
+    Node4.nid = 4;
     memset(Node4.buff, 0, sizeof(Node4.buff));
     memcpy(&Node4.buff, data, len);
     Node4.len = len;
@@ -329,8 +335,7 @@ bool open_tcp() {
 
 void debugSlave() {
   Serial.println("======== DEBUG SLAVE ========");
-  Serial.print(millis());
-  //
+  Serial.println(millis());
   Serial.print("MAC1 ");
   for (int i = 0; i < 6; i++) {
     Serial.print(Node1.mac[i], HEX);
@@ -376,16 +381,18 @@ void debugSlave() {
 }
 
 
-void writeForwaredSensorFromSlave() {
+void writeForwaredSensorFromSlave(NODEStructure &node) {
   debugSlave();
   Serial.println(F("StartSend Node 1 ..."));
   Serial.println("Caling StartSend");
   tcp.StartSend();
   delay(1000);
-  Serial.println("----- NODE FORWARD HEX -----");
-  for(int u = 0; u < Node1.len; u++){
-    tcp.write((uint8_t)Node1.buff[u]);
-    Serial.print(Node1.buff[u], HEX);
+  Serial.print("----- NODE FORWARD HEX FROM ID = ");
+  Serial.print(node.nid);
+  Serial.println(" -----");
+  for(int u = 0; u < node.len; u++){
+    tcp.write((uint8_t)node.buff[u]);
+    Serial.print(node.buff[u], HEX);
     delay(1);
   }
   Serial.println("Calling StopSend..");
@@ -423,8 +430,16 @@ void writeArduinoSensor() {
 
 bool writeDataStringToTCPSocket() {
   Serial.println("Write From Slave");
-  writeForwaredSensorFromSlave();
-  delay(1000);
+
+  writeForwaredSensorFromSlave(Node1);
+  delay(10000);
+  writeForwaredSensorFromSlave(Node2);
+  delay(10000);
+  writeForwaredSensorFromSlave(Node3);
+  delay(10000);
+  writeForwaredSensorFromSlave(Node4);
+  delay(10000);
+
   Serial.println("Write Arduino Sensor");
   writeArduinoSensor();
   delay(1000);
@@ -539,25 +554,24 @@ long time_now, time_prev1, time_prev2 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-if (time_now > (35000L)) {
-    Serial.println(">35");
-    if (time_now < time_prev1) {
-      asm volatile ("  jmp 0");
+  if (time_now > (35000L)) {
+      if (time_now < time_prev1) {
+        asm volatile ("  jmp 0");
+      }
+
+      if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
+        time_prev1 = time_now;
+        //GET_Position();
+        SentNodeData();
+        Peroid = globalSleepTimeFromNetpieInMemory;
+      }
     }
 
-    if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
-      time_prev1 = time_now;
-      //GET_Position();
-      SentNodeData();
-      Peroid = globalSleepTimeFromNetpieInMemory;
+    if (time_now - time_prev2 >= 1000) {
+      time_prev2 = time_now;
+      digitalWrite(LED, !digitalRead(LED));
     }
   }
-
-  if (time_now - time_prev2 >= 1000) {
-    time_prev2 = time_now;
-    digitalWrite(LED, !digitalRead(LED));
-  }
-}
 
 void SentNodeData (void) {
 
