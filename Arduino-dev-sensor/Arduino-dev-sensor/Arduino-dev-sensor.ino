@@ -158,6 +158,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
         memset(Node1.buff, 0, sizeof(Node1.buff));
         memcpy(&Node1.buff, data, len);
         Node1.len = len;
+        Node1.nid = 1;
         Serial.println("");
         Serial.println("data node1 Registered....");
         break;
@@ -166,6 +167,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
         memset(Node2.buff, 0, sizeof(Node2.buff));
         memcpy(&Node2.buff, data, len);
         Node2.len = len;
+        Node2.nid = 2;
 
         Serial.println("");
         Serial.println("data node2 Registered....");
@@ -176,6 +178,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
         memset(Node3.buff, 0, sizeof(Node3.buff));
         memcpy(&Node3.buff, data, len);
         Node3.len = len;
+        Node3.nid = 3;
 
         Serial.println("");
         Serial.println("data node3 Registered....");
@@ -186,6 +189,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
         memset(Node4.buff, 0, sizeof(Node4.buff));
         memcpy(&Node4.buff, data, len);
         Node4.len = len;
+        Node4.nid = 4;
 
         Serial.println("");
         Serial.println("data node4 Registered....");
