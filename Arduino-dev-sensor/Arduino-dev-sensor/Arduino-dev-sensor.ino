@@ -569,6 +569,19 @@ void loop() {
         readAllSensors();
         GET_Sound ();
 
+        // Serial.println("====  Printing Sensor Values ======");
+        // Serial.print("\treadTemperature= ");
+        // Serial.print(_tempBME);
+        // Serial.print("\treadHumidity= ");
+        // Serial.print(_humidBME);
+        // Serial.print("\treadPressure= ");
+        // Serial.print(_pressBME);
+        // Serial.print("\tSound= ");
+        // Serial.print(_soundStatus);
+        // Serial.print("\tanalogRead= ");
+        // Serial.println(_batt*30/1023);
+        // Serial.println("====  Printing Sensor Values ======");
+        
         if((_batt*30/1023) > 9.0f){
           GET_Position();
           SentNodeData();
@@ -656,7 +669,7 @@ void SentNodeData (void) {
   Serial.println(F("Show My IP"));
   Serial.println(net.GetIP());
 
-  globalSleepTimeFromNetpieInMemory = getSleepTimeFromNetpie() / 20;
+  globalSleepTimeFromNetpieInMemory = getSleepTimeFromNetpie();
 
   Serial.print("SLEEP TIME [NETPIE] = ");
   Serial.println(globalSleepTimeFromNetpieInMemory);
