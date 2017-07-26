@@ -389,8 +389,8 @@ void writeArduinoSensor() {
   Serial.print("\n");
   Serial.print("\n");
 
-  delay(1000);
   tcp.StartSend();
+  delay(100);
   Serial.println("----- Sensor Value HEX -----");
   Serial.println(sensor_len);
 
@@ -510,7 +510,7 @@ void sendDataOverTCPSocket() {
 
   writeDataStringToTCPSocket();
 
-  
+
   cd = 20;
   while (!tcp.Close()) {
     Serial.println("[2] Closing tcp...");
@@ -554,7 +554,7 @@ long time_now, time_prev1, time_prev2, time_prev3 ;
 uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
-  if (time_now > 35000L) {
+  if (time_now > 32000L) {
       if (time_now < time_prev1) {
         asm volatile ("  jmp 0");
       }

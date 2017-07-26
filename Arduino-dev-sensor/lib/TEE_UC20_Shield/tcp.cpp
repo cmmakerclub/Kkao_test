@@ -186,7 +186,7 @@ bool TCP::StopSend()
 {
 
 	gsm.write(0x1A);
-	const long interval = 10*1000;
+	const long interval = 1000;
 	unsigned long previousMillis = millis();
 	unsigned char cnt=0;
 	while(!gsm.available())

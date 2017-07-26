@@ -71,6 +71,12 @@ void readAllSensors() {
   Serial.println("==========================");
   Serial.println("       print data         ");
   Serial.println("==========================");
+  Serial.println(field1);
+  Serial.println(field2);
+  Serial.println(field3);
+  Serial.println(field4);
+  Serial.println(field5);
+
 
   //
   char gpsBuffer[50];
@@ -85,6 +91,7 @@ void readAllSensors() {
   Serial.println(message[20 + 4*5], HEX);
   Serial.print("____GPS VAL =");
   Serial.println(gpsBuffer);
+  Serial.println(*gps);
   uint8_t sum = 0;
   for (uint8_t i = 0; i < (21 + 4*5 + gpsLength); i++) {
     sum ^= message[i];
