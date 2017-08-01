@@ -502,8 +502,8 @@ void sendDataOverTCPSocket() {
   {
     Serial.println("[2] Opening tcp...");
     delay(1000);
-    cc--;
-    if(cc < 0){
+    cd--;
+    if(cd < 0){
       return 0;
     }
   }
@@ -516,8 +516,8 @@ void sendDataOverTCPSocket() {
     Serial.println("[2] Closing tcp...");
     delay(1000);
   }
-  cc--;
-  if(cc < 0){
+  cd--;
+  if(cd < 0){
     return 0;
   }
 }
