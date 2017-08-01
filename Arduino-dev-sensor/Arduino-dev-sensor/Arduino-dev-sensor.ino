@@ -27,10 +27,10 @@ extern bool gotGPSLocation;
 // String TCP_SERVER_PORT     = "10777";
 // String TCP_SERVER_ENDPOINT = "mqtt.cmmc.io";
 // String TCP_SERVER_PORT     = "1883";
-
-String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
-String TCP_SERVER_PORT     = "10778";
-
+// String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
+String TCP_SERVER_ENDPOINT = "139.59.125.69";
+// String TCP_SERVER_PORT     = "10778";
+String TCP_SERVER_PORT     = "10779";
 INTERNET net;
 TCP tcp;
 UC_FILE file;
@@ -203,8 +203,9 @@ long globalSleepTimeFromNetpieInMemory = 3;
 #include <MemoryFree.h>
 #endif
 
-//#define APN "internet"
-#define APN "bmta.fleet"
+#define APN "internet"
+
+// #define APN "bmta.fleet"
 #define USER ""
 #define PASS ""
 
@@ -221,7 +222,7 @@ String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
   Serial.println(F("Send HTTP GET"));
-  http.url("http://api.netpie.io/topic/SmartTrash/time/master/1?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
+  http.url("http://api.netpie.io/topic/SmartTrash/time/master/4?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
   Serial.println(http.get());
   // Serial.println(F("Clear data in RAM"));
   file.Delete(RAM, "*");
@@ -352,11 +353,23 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
   Serial.print("----- NODE FORWARD HEX FROM ID = ");
   Serial.print(node.nid);
   Serial.println(" -----");
-  for(int u = 0; u < node.len; u++){
-    tcp.write((uint8_t)node.buff[u]);
-    Serial.print(node.buff[u], HEX);
+
+  // for(int u = 0; u < node.len; u++){
+  //   tcp.write((uint8_t)node.buff[u]);
+  //   Serial.print(node.buff[u], HEX);
+  //   delay(1);
+  // }
+
+  char buffer[256] = {0};
+  array_to_string(node.buff, node.len, buffer);
+
+
+  for(int u = 0; u < node.len*2; u++){
+    tcp.write((uint8_t)buffer[u]);
+    Serial.println((uint8_t)buffer[u]);
     delay(1);
   }
+
   Serial.println();
   Serial.println("Calling StopSend..");
   tcp.StopSend();
@@ -380,11 +393,23 @@ void writeArduinoSensor() {
   tcp.StartSend();
   Serial.println("----- Sensor Value HEX -----");
   Serial.println(sensor_len);
-  for(int u = 0; u < sensor_len; u++){
-    tcp.write((uint8_t)SensorMsg[u]);
-    Serial.println((uint8_t)SensorMsg[u], HEX);
+
+  // for(int u = 0; u < sensor_len; u++){
+  //   tcp.write((uint8_t)SensorMsg[u]);
+  //   Serial.println((uint8_t)SensorMsg[u], HEX);
+  //   delay(1);
+  // }
+
+  char buffer[256] = {0};
+  array_to_string(SensorMsg, sensor_len, buffer);
+
+
+  for(int u = 0; u < sensor_len*2; u++){
+    tcp.write((uint8_t)buffer[u]);
+    Serial.println((uint8_t)buffer[u]);
     delay(1);
   }
+
   tcp.StopSend();
   delay(1000);
   Serial.println();
