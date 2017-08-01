@@ -497,19 +497,29 @@ void sendDataOverTCPSocket() {
 
   Serial.println("sendDataOverTCPSocket");
 
-  while (!open_tcp())
+  int cd = 20;
+  while (!open_tcp() && cd--)
   {
     Serial.println("[2] Opening tcp...");
     delay(1000);
+    cc--;
+    if(cc < 0){
+      return 0;
+    }
   }
 
   writeDataStringToTCPSocket();
 
+  
+  cd = 20;
   while (!tcp.Close()) {
     Serial.println("[2] Closing tcp...");
     delay(1000);
   }
-
+  cc--;
+  if(cc < 0){
+    return 0;
+  }
 }
 
 //////////////////////////////mainSETUP////////////////////////////////
