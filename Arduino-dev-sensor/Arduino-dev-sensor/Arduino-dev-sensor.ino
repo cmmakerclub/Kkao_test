@@ -11,7 +11,6 @@
 #include "http.h"
 #include <ArduinoJson.h>
 
-#define BINID     "100"
 uint8_t LED = 13;
 #define MODE_PIN A4
 
@@ -21,12 +20,7 @@ uint8_t LED = 13;
 HTTP http;
 extern bool gotGPSLocation;
 
-// bool ret = tcp.Open("sock.traffy.xyz","Connecting to... ");
-//  bool ret = tcp.Open("api.traffy.xyz", "10777");
-// String TCP_SERVER_ENDPOINT = "128.199.143.200";
-// String TCP_SERVER_PORT     = "10777";
-// String TCP_SERVER_ENDPOINT = "mqtt.cmmc.io";
-// String TCP_SERVER_PORT     = "1883";
+#define NETPIE_SLEEP_TIME_URL "http://api.netpie.io/topic/SmartTrash/time/master/4?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9"
 // String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
 String TCP_SERVER_ENDPOINT = "139.59.125.69";
 // String TCP_SERVER_PORT     = "10778";
@@ -112,7 +106,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Node1.len = len;
 
     Serial.println("");
-    Serial.println("data node1 comming....");
+    Serial.println("data node1 coming....");
 
   } else if (CheckMac(tmp, Node2.mac)) {
     Node2.nid = 2;
@@ -121,7 +115,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Node2.len = len;
 
     Serial.println("");
-    Serial.println("data node2 comming....");
+    Serial.println("data node2 coming....");
 
   } else if (CheckMac(tmp, Node3.mac)) {
     Node3.nid = 3;
@@ -130,7 +124,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Node3.len = len;
 
     Serial.println("");
-    Serial.println("data node3 comming....");
+    Serial.println("data node3 coming....");
 
   } else if (CheckMac(tmp, Node4.mac)) {
     Node4.nid = 4;
@@ -139,7 +133,7 @@ void MassageSave(uint8_t* tmp, uint8_t* data, uint8_t len) {
     Node4.len = len;
 
     Serial.println("");
-    Serial.println("data node4 comming....");
+    Serial.println("data node4 coming....");
 
   } else {
     switch (index) {
@@ -222,7 +216,7 @@ String netpieJsonString;
 
 long getSleepTimeFromNetpie() {
   Serial.println(F("Send HTTP GET"));
-  http.url("http://api.netpie.io/topic/SmartTrash/time/master/4?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9");
+  http.url(NETPIE_SLEEP_TIME_URL);
   Serial.println(http.get());
   // Serial.println(F("Clear data in RAM"));
   file.Delete(RAM, "*");
