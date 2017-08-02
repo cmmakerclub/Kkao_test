@@ -21,8 +21,8 @@ HTTP http;
 extern bool gotGPSLocation;
 
 #define NETPIE_SLEEP_TIME_URL "http://api.netpie.io/topic/SmartTrash/time/master/4?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9"
-// String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
-String TCP_SERVER_ENDPOINT = "139.59.125.69";
+String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
+// String TCP_SERVER_ENDPOINT = "139.59.125.69";
 // String TCP_SERVER_PORT     = "10778";
 String TCP_SERVER_PORT     = "10779";
 INTERNET net;
