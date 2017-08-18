@@ -1,10 +1,10 @@
 #define SERIAL_RX_BUFFER_SIZE 512
+#define BME280_ADDRESS                (0x77)
 
 #include <Arduino.h>
 #include <SPI.h>
 #include "TEE_UC20.h"
 #include "internet.h"
-//#include "CMMC_Interval.hpp"
 #include "tcp.h"
 #include <Wire.h>
 #include "File.h"
@@ -20,7 +20,8 @@ uint8_t LED = 13;
 HTTP http;
 extern bool gotGPSLocation;
 
-#define NETPIE_SLEEP_TIME_URL "http://api.netpie.io/topic/SmartTrash/time/master/4?auth=xTsWAyTWJk3Ba5h:3UzQJ3DeGT50PwfwlmJE0vQF9"
+#define NETPIE_SLEEP_TIME_URL "http://api.netpie.io/topic/TraffyPatong/v/2/time/master/4?retain&auth=tN5raLDu2VRFqS8:ej78ZOAB8bMqxyym1UbC8CtGd"
+
 String TCP_SERVER_ENDPOINT = "api.traffy.xyz";
 // String TCP_SERVER_ENDPOINT = "139.59.125.69";
 // String TCP_SERVER_PORT     = "10778";
@@ -72,10 +73,10 @@ uint8_t MassageAnalysis() {
             sum ^= tmp[j + k];
           }
           if (sum == tmp[i - j - 2]) {
-            digitalWrite(A3,1);
+            digitalWrite(A3, 1);
             memcpy(&mac, &tmp[j + 8], 6);
             MassageSave(mac, &tmp[j], i - j);
-            digitalWrite(A3,0);
+            digitalWrite(A3, 0);
             return 1;
           } else {
             return 0;
@@ -358,7 +359,7 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
   array_to_string(node.buff, node.len, buffer);
 
 
-  for(int u = 0; u < node.len*2; u++){
+  for (int u = 0; u < node.len * 2; u++) {
     tcp.write((uint8_t)buffer[u]);
     Serial.println((uint8_t)buffer[u]);
     delay(1);
@@ -372,13 +373,13 @@ void writeForwaredSensorFromSlave(NODEStructure &node) {
 
 void writeArduinoSensor() {
   Serial.println("writeArduinoSensor");
-  #define SensorMsg_size 172
+#define SensorMsg_size 172
   char SensorMsg[SensorMsg_size] = "";
   String GpsMsg = gps_lat + "," + gps_lon + "," + gps_alt + "," + _rssi;
   Serial.println("GPS MSG = ");
   Serial.println(GpsMsg);
   int sensor_len = addSensorMsg((uint8_t *)&SensorMsg, (uint8_t *)&Node1.buff[2],
-        &GpsMsg);
+                                &GpsMsg);
 
   Serial.print("\n");
   Serial.print("\n");
@@ -398,7 +399,7 @@ void writeArduinoSensor() {
   array_to_string(SensorMsg, sensor_len, buffer);
 
 
-  for(int u = 0; u < sensor_len*2; u++){
+  for (int u = 0; u < sensor_len * 2; u++) {
     tcp.write((uint8_t)buffer[u]);
     Serial.println((uint8_t)buffer[u]);
     delay(1);
@@ -414,24 +415,24 @@ bool writeDataStringToTCPSocket() {
 
   uint8_t tmp[6] = {0};
 
-  if(!CheckMac(tmp, Node1.mac)){
+  if (!CheckMac(tmp, Node1.mac)) {
     delay(1000);
     writeArduinoSensor();
     delay(1000);
     writeForwaredSensorFromSlave(Node1);
   }
 
-  if(!CheckMac(tmp, Node2.mac)){
+  if (!CheckMac(tmp, Node2.mac)) {
     delay(1000);
     writeForwaredSensorFromSlave(Node2);
   }
 
-  if(!CheckMac(tmp, Node3.mac)){
+  if (!CheckMac(tmp, Node3.mac)) {
     delay(1000);
     writeForwaredSensorFromSlave(Node3);
   }
 
-  if(!CheckMac(tmp, Node4.mac)){
+  if (!CheckMac(tmp, Node4.mac)) {
     delay(1000);
     writeForwaredSensorFromSlave(Node4);
   }
@@ -497,7 +498,7 @@ void sendDataOverTCPSocket() {
     Serial.println("[2] Opening tcp...");
     delay(1000);
     cd--;
-    if(cd < 0){
+    if (cd < 0) {
       return 0;
     }
   }
@@ -511,7 +512,7 @@ void sendDataOverTCPSocket() {
     delay(1000);
   }
   cd--;
-  if(cd < 0){
+  if (cd < 0) {
     return 0;
   }
 }
@@ -520,6 +521,7 @@ void sendDataOverTCPSocket() {
 
 void setup()  {
   Serial.begin(115200);
+  readAllSensors();
   Serial2.begin(9600);  //  serial connect to esp8266
 
   Serial.println(F("Program Start."));
@@ -549,45 +551,16 @@ uint8_t Peroid = 0;
 void loop() {
   time_now = millis();
   if (time_now > 32000L) {
-      if (time_now < time_prev1) {
-        asm volatile ("  jmp 0");
-      }
-
-      if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
-        time_prev1 = time_now;
-
-        readAllSensors();
-        GET_Sound ();
-
-        // Serial.println("====  Printing Sensor Values ======");
-        // Serial.print("\treadTemperature= ");
-        // Serial.print(_tempBME);
-        // Serial.print("\treadHumidity= ");
-        // Serial.print(_humidBME);
-        // Serial.print("\treadPressure= ");
-        // Serial.print(_pressBME);
-        // Serial.print("\tSound= ");
-        // Serial.print(_soundStatus);
-        // Serial.print("\tanalogRead= ");
-        // Serial.println(_batt*30/1023);
-        // Serial.println("====  Printing Sensor Values ======");
-
-        if((_batt*30/1023) > 9.0f){
-          GET_Position();
-          SentNodeData();
-        }
-
-        Peroid = globalSleepTimeFromNetpieInMemory;
-      }
+    if (time_now < time_prev1) {
+      asm volatile ("  jmp 0");
     }
 
-    if (time_now - time_prev2 >= 1000) {
-      time_prev2 = time_now;
+    if (time_now - time_prev1 >= ((long)Peroid * 60000L)) {
+      time_prev1 = time_now;
 
+      readAllSensors();
+      GET_Sound ();
 
-      // readAllSensors();
-      // GET_Sound ();
-      //
       // Serial.println("====  Printing Sensor Values ======");
       // Serial.print("\treadTemperature= ");
       // Serial.print(_tempBME);
@@ -601,27 +574,56 @@ void loop() {
       // Serial.println(_batt*30/1023);
       // Serial.println("====  Printing Sensor Values ======");
 
-
-      digitalWrite(LED, !digitalRead(LED));
-    }
-
-    if (time_now - time_prev3 >= 100) {
-      time_prev3 = time_now;
-
-      int16_t tmp = abs(Sound_max - Sound_min);
-      float ttmp = (13.619551*(log(tmp))+ 35);
-      if(ttmp > 0 && ttmp < 120) {
-        Sound_sumDBm += ttmp;
-        Sound_count++;
+      if ((_batt * 30 / 1023) > 10.5f) {
+        GET_Position();
+        SentNodeData();
       }
-      Sound_max = 0;
-      Sound_min = 1023;
-    }
 
-    uint16_t Sound_tmp = analogRead(A0);
-    if(Sound_tmp > Sound_max) Sound_max = Sound_tmp;
-    if(Sound_tmp < Sound_min) Sound_min = Sound_tmp;
+      Peroid = globalSleepTimeFromNetpieInMemory;
+    }
   }
+
+  if (time_now - time_prev2 >= 1000) {
+    time_prev2 = time_now;
+
+
+    // readAllSensors();
+    // GET_Sound ();
+    //
+    // Serial.println("====  Printing Sensor Values ======");
+    // Serial.print("\treadTemperature= ");
+    // Serial.print(_tempBME);
+    // Serial.print("\treadHumidity= ");
+    // Serial.print(_humidBME);
+    // Serial.print("\treadPressure= ");
+    // Serial.print(_pressBME);
+    // Serial.print("\tSound= ");
+    // Serial.print(_soundStatus);
+    // Serial.print("\tanalogRead= ");
+    // Serial.println(_batt*30/1023);
+    // Serial.println("====  Printing Sensor Values ======");
+
+
+    digitalWrite(LED, !digitalRead(LED));
+  }
+
+  if (time_now - time_prev3 >= 100) {
+    time_prev3 = time_now;
+
+    int16_t tmp = abs(Sound_max - Sound_min);
+    float ttmp = (13.619551 * (log(tmp)) + 35);
+    if (ttmp > 0 && ttmp < 120) {
+      Sound_sumDBm += ttmp;
+      Sound_count++;
+    }
+    Sound_max = 0;
+    Sound_min = 1023;
+  }
+
+  uint16_t Sound_tmp = analogRead(A0);
+  if (Sound_tmp > Sound_max) Sound_max = Sound_tmp;
+  if (Sound_tmp < Sound_min) Sound_min = Sound_tmp;
+}
 
 void SentNodeData (void) {
 
@@ -692,7 +694,7 @@ void GET_Position (void) {
 }
 
 void GET_Sound (void) {
-  _soundStatus = ((float)Sound_sumDBm/Sound_count);
+  _soundStatus = ((float)Sound_sumDBm / Sound_count);
   Sound_sumDBm =  0;
   Sound_count = 0;
 }

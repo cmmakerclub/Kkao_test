@@ -20,16 +20,26 @@ long duration;
 void readAllSensors() {
 
   bme.begin();  // bme sensor begin
+  delay(100);
   _tempBME = bme.readTemperature();
   _humidBME = bme.readHumidity();
   _pressBME = bme.readPressure() / 100.0F;
 
   pinMode(A1, INPUT);
   _batt = analogRead(A1);
+  _batt += analogRead(A1);
+  _batt += analogRead(A1);
+  _batt /= 3;
 
+
+  Serial.print("BME280: ");
+  Serial.print("T: ");    Serial.print(_tempBME);
+  Serial.print("\tH: ");    Serial.print(_humidBME);
+  Serial.print("\tP: ");    Serial.print(_pressBME);
+  Serial.print("\tB: ");    Serial.println(_batt);
 }
 
-  int addSensorMsg(uint8_t *message, uint8_t *mac, String *gps) {
+int addSensorMsg(uint8_t *message, uint8_t *mac, String *gps) {
   message[0] = 0xfa; //<---- header
   message[1] = 0xfb; //<---- header
 
@@ -56,17 +66,17 @@ void readAllSensors() {
   message[18] = 0x14; //<----------- lenght
 
 
-  uint32_t field1 = _tempBME*100;
-  uint32_t field2 = _humidBME*100;
+  uint32_t field1 = _tempBME * 100;
+  uint32_t field2 = _humidBME * 100;
   uint32_t field3 = _pressBME;
-  uint32_t field4 = _soundStatus*100;
+  uint32_t field4 = _soundStatus * 100;
   uint32_t field5 = _batt;
 
-  memcpy(&message[19 + 4*0], (const void *)&field1, 4);
-  memcpy(&message[19 + 4*1], (const void *)&field2, 4);
-  memcpy(&message[19 + 4*2], (const void *)&field3, 4);
-  memcpy(&message[19 + 4*3], (const void *)&field4, 4);
-  memcpy(&message[19 + 4*4], (const void *)&field5, 4);
+  memcpy(&message[19 + 4 * 0], (const void *)&field1, 4);
+  memcpy(&message[19 + 4 * 1], (const void *)&field2, 4);
+  memcpy(&message[19 + 4 * 2], (const void *)&field3, 4);
+  memcpy(&message[19 + 4 * 3], (const void *)&field4, 4);
+  memcpy(&message[19 + 4 * 4], (const void *)&field5, 4);
 
   Serial.println("==========================");
   Serial.println("       print data         ");
@@ -81,25 +91,25 @@ void readAllSensors() {
   //
   char gpsBuffer[50];
   uint8_t gpsLength = gps->length();
-  gps->getBytes(gpsBuffer, gpsLength+1);
-  message[20 + 4*5] = gps->length();
-  memcpy(&message[21 + 4*5], gpsBuffer, gpsLength);
+  gps->getBytes(gpsBuffer, gpsLength + 1);
+  message[20 + 4 * 5] = gps->length();
+  memcpy(&message[21 + 4 * 5], gpsBuffer, gpsLength);
 
   Serial.print("____GPS LEN =");
   Serial.println(gps->length());
   Serial.println(gps->length(), HEX);
-  Serial.println(message[20 + 4*5], HEX);
+  Serial.println(message[20 + 4 * 5], HEX);
   Serial.print("____GPS VAL =");
   Serial.println(gpsBuffer);
   Serial.println(*gps);
   uint8_t sum = 0;
-  for (uint8_t i = 0; i < (21 + 4*5 + gpsLength); i++) {
+  for (uint8_t i = 0; i < (21 + 4 * 5 + gpsLength); i++) {
     sum ^= message[i];
   }
 
-  message[21 + 4*5 + gps->length()+1] = sum;
-  message[21 + 4*5 + gps->length()+2] = 0x0d;
-  message[21 + 4*5 + gps->length()+3] = 0x0a;
+  message[21 + 4 * 5 + gps->length() + 1] = sum;
+  message[21 + 4 * 5 + gps->length() + 2] = 0x0d;
+  message[21 + 4 * 5 + gps->length() + 3] = 0x0a;
 
-  return 21 + 4*5 + gpsLength+3 +1;
+  return 21 + 4 * 5 + gpsLength + 3 + 1;
 }
